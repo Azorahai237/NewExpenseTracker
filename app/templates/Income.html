@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>Incomes</h1>
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Category</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+
+      <tr> 
+        <th>{{entry.id}}</td>
+        <td>{{entry.name}}</td>
+        <td>{{entry.category}}</td>
+        <td>{{entry.amount}}</td>
+        <td><a  href="{{url_for('EditIncome', entry_id = entry.id)}}" class="btn btn-warning">Edit</a></td>
+        <td><a  href="{{url_for('DeleteIncome', entry_id = entry.id)}}" class="btn btn-danger">Delete</a></td>
+        
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

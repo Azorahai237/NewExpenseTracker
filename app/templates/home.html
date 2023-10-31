@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+
+<div class="container">
+    <h1 class="text-center" id="goal-header">Saving Goal (No goal saved)</h1>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 text-center">
+            <h2 class="text-center" id="bar-header">Progress</h2>
+            <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;" id="progress-bar"></div>
+            </div>
+
+            <a href="/DeleteGoal" id="delete-button" class="btn btn-danger mt-3">Delete Goal</a>
+
+            <div id="chart-container" style="margin-top: 20px;">
+                <h3 id="chart-header" class="text-center">Income vs Expenses</h3>
+                <canvas id="chart" width="10" height="10"></canvas>
+            </div>
+
+
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <!-- First Bootstrap Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            Income
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" id="income-name"><div>null</div></li>
+                            <li class="list-group-item" id="income-category"><div>null</div></li>
+                            <li class="list-group-item" id="income-amount"><div>null</div></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Second Bootstrap Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            Expenses
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" id="expense-name"><div>null</div></li>
+                            <li class="list-group-item" id="expense-category"><div>null</div></li>
+                            <li class="list-group-item" id="expense-amount"><div>null</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //recieving all the data from the python function
+    var sign = '£';
+    let GoalData = JSON.parse({{QueryResult | tojson}});
+    let GoalName = GoalData[0];
+    let GoalAmount = GoalData[1];
+    let bar_percentage = JSON.parse({{percentage | tojson}});
+    let MaxIncomeEntry = JSON.parse({{IncomeMax | tojson}});
+    let MaxExpenseEntry = JSON.parse({{ExpenseMax | tojson}});
+
+    //updating goal header
+    const GoalHeader = document.getElementById('goal-header')
+    GoalHeader.textContent = "Saving Goal ( " + GoalName + " " + sign + GoalAmount + " )"    
+
+    //updating Income and expense cards
+    
+    let total_values = JSON.parse({{totals | tojson}});
+    const placeholder = "No Data"
+    
+    
+    
+    // JavaScript code to update the progress bar
+    function updateProgressBar(percentage) {
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = percentage + '%';
+        progressBar.setAttribute('aria-valuenow', percentage);
+        
+        const BarHeader = document.getElementById('bar-header');
+        BarHeader.textContent = percentage  +'% of the way to goal'
+        
+    }
+    
+    
+    function Check_Chart_Header(totals){
+        const chartHeader = document.getElementById('chart-header');
+        const chartData = totals; // Replace with your own data
+        if (chartData.every(data => data === 0)) {
+            chartHeader.textContent = "No Data Available";
+        } else {
+            chartHeader.textContent = "Income vs Expenses";
+        }
+        
+    }
+    
+    
+    // Initialize the pie chart
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Income', 'Expense'],
+            datasets: [{
+                data: total_values,
+                backgroundColor: ['green', 'red'],
+            }],
+        },
+        options: {
+            responsive: true, // Make the chart responsive
+        },
+    });
+    
+    // Example of updating the progress bar to 75%:
+    updateProgressBar(bar_percentage);
+    Check_Chart_Header(total_values);
+    
+    const incomeNameElement = document.getElementById('income-name').querySelector('div');
+    const incomeCategoryElement = document.getElementById('income-category').querySelector('div');
+    const incomeAmountElement = document.getElementById('income-amount').querySelector('div');
+
+// Update Expense Card
+    const expenseNameElement = document.getElementById('expense-name').querySelector('div');
+    const expenseCategoryElement = document.getElementById('expense-category').querySelector('div');
+    const expenseAmountElement = document.getElementById('expense-amount').querySelector('div');
+
+    if (MaxIncomeEntry.length == 3){
+        incomeNameElement.textContent = "Name: " + MaxIncomeEntry[0];
+        incomeCategoryElement.textContent = "Category: " + MaxIncomeEntry[1];
+        incomeAmountElement.textContent = "Amount: " + MaxIncomeEntry[2];
+    }
+
+    if(MaxExpenseEntry.length == 3){
+        expenseNameElement.textContent = "Name: " + MaxExpenseEntry[0];
+        expenseCategoryElement.textContent = "Category: " + MaxExpenseEntry[1];
+        expenseAmountElement.textContent = "Amount:" + MaxExpenseEntry[2];
+    } 
+    // Update values for the Expense card
+        
+    
+    
+    
+    
+
+</script>
+   
+
+    
+
+
+{% endblock %}
